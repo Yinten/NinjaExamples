@@ -12,7 +12,7 @@ Copyright 2011 Ryan Mattison
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-*/ 
+ */
 package com.ninja.examples.utility.images;
 
 import java.util.List;
@@ -28,8 +28,7 @@ import android.widget.ListView;
 
 import com.ninja.examples.utility.images.ImageNotifyHandler.OnImageUpdateListener;
 
-public abstract class BaseImageActivity extends Activity
-{
+public abstract class BaseImageActivity extends Activity {
 
 	protected static final String TAG = "BaseImageActivity";
 
@@ -52,17 +51,12 @@ public abstract class BaseImageActivity extends Activity
 	/**
 	 * Set up the image provider, generally the ImageNotifyHandler
 	 */
-	protected ImageNotifyHandler getNotifyHandler()
-	{
-		if (_imageNotifyHandler == null)
-		{
+	protected ImageNotifyHandler getNotifyHandler() {
+		if (_imageNotifyHandler == null) {
 			_imageNotifyHandler = new ImageNotifyHandler(
-					new OnImageUpdateListener()
-					{
-						public void onImageUpdate(String remoteImageUrl)
-						{
-							if (!isFinishing())
-							{
+					new OnImageUpdateListener() {
+						public void onImageUpdate(String remoteImageUrl) {
+							if (!isFinishing()) {
 								getAdapter().notifyDataSetChanged();
 							}
 						}
@@ -75,8 +69,7 @@ public abstract class BaseImageActivity extends Activity
 	/**
 	 * Returns the layoutinflater
 	 */
-	public LayoutInflater getLayoutInflater()
-	{
+	public LayoutInflater getLayoutInflater() {
 		return _loInflater;
 	}
 
@@ -86,61 +79,54 @@ public abstract class BaseImageActivity extends Activity
 	protected abstract List<?> getList();
 
 	/**
-	 * In case all the images didn't load previously, 
-	 * we don't want to keep them in memory, or do web services to find them,
-	 * but we do want them to load when the user comes back to the activity.
+	 * In case all the images didn't load previously, we don't want to keep them
+	 * in memory, or do web services to find them, but we do want them to load
+	 * when the user comes back to the activity.
 	 */
-	protected void invalidate()
-	{
-		if (getAdapter() != null && getListView().getAdapter() != null)
-		{
+	protected void invalidate() {
+		if (getAdapter() != null && getListView().getAdapter() != null) {
 			getAdapter().notifyDataSetChanged();
 		}
 
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
-		if (!getAllImagesLoaded())
-		{
+		if (!getAllImagesLoaded()) {
 			Log.i(TAG,
 					"Image Provider: Not all images loaded previously, invalidating views");
 			invalidate();
-		} else
-		{
+		} else {
 			Log.i(TAG,
 					"Image Provider: must have loaded all visible images or it would have invalidated");
 		}
 	}
 
 	@Override
-	protected void onPause()
-	{
+	protected void onPause() {
 		super.onPause();
 		setAllImagesLoaded();
 		ImageProvider.clear();
 	}
 
-	private boolean getAllImagesLoaded()
-	{
+	private boolean getAllImagesLoaded() {
 		return _allImageLoaded;
 	}
 
-	private void setAllImagesLoaded()
-	{
+	private void setAllImagesLoaded() {
 		_allImageLoaded = (ImageProvider.getUnresolvedCount() == 0);
 		Log.i(TAG, "Image Provider: Set All Images Loaded Too: "
 				+ _allImageLoaded);
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		_context = this;
+
+		_loInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 	}
 

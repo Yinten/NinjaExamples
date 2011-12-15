@@ -20,6 +20,6 @@ Copyright 2011 Ryan Mattison
     android:orientation="vertical" >
 
     <Button android:layout_width = "match_parent" android:layout_height="wrap_content" android:padding="20dp"
-        android:id="@+id/listViewButton" android:text="ListView Image Example"/>
+        android:id="@+id/listViewButton" android:text="@string/lv_example"/>
 
 </LinearLayout>

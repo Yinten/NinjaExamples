@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, CALNExamplesActivity!</string>
     <string name="app_name">CALNExamples</string>
+    <string name="iv_content">A image to appease those that can\'t see unless UI badazzeled.</string>
+    <string name="lv_example">ListView Image Example</string>
 
 </resources>
