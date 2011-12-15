@@ -6,7 +6,7 @@
 
     <uses-sdk android:minSdkVersion="8" />
 
-    <application
+    <application android:name="com.ninja.examples.ExamplesApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
