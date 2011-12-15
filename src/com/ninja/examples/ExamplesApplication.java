@@ -18,6 +18,12 @@ package com.ninja.examples;
 
 import com.ninja.examples.utility.UtilityApplication;
 
+
+/**
+ * 
+ * @author ryan.mattison
+ * This class is for future examples
+ */
 public class ExamplesApplication extends UtilityApplication
 {
 

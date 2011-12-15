@@ -17,13 +17,34 @@ Copyright 2011 Ryan Mattison
 package com.ninja.examples;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class CALNExamplesActivity extends Activity {
-    /** Called when the activity is first created. */
-    @Override
+    
+    
+	private Button listViewButton;
+	
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        listViewButton = (Button) findViewById(R.id.listViewButton);
+        
+        listViewButton.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				Intent i = new Intent(v.getContext(), CALNListViewExample.class);
+				startActivity(i); 
+			}
+		});
+        
     }
 }

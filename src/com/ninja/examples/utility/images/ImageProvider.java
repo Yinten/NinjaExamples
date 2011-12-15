@@ -17,7 +17,6 @@ Copyright 2011 Ryan Mattison
 
 package com.ninja.examples.utility.images;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -30,58 +29,96 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.BufferedHttpEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import com.ninja.examples.R;
-import com.ninja.examples.utility.net.APIRequest;
-
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Message;
 import android.os.Process;
 import android.util.Log;
 
+import com.ninja.examples.R;
+import com.ninja.examples.utility.Globals;
+import com.ninja.examples.utility.net.APIRequest;
+
 
 public final class ImageProvider {
 
-	private static Bitmap _loadingImage;
-	private static Bitmap _comingSoonImage;
+
 
 	private static final String TAG = "ImageProvider";
+	
+	/**
+	 * Image to load if web service isn't complete
+	 */
+	private static Bitmap _loadingImage;
+	
+	/**
+	 * Image to load if the image doesn't exist or bad URL
+	 */
+	private static Bitmap _comingSoonImage;
+	
+
+	/**
+	 * Amount of threads for producer / consumer
+	 */
 	private static final int PRESCRIBED_DOWNLOAD_THREAD_COUNT = 2;
+	
+	/**
+	 * Which type of threads to run
+	 */
 	private static final boolean EXIT_THREADS_UPON_APPLICATION_EXIT = true;
+	
+	/**
+	 * A queue of URLs to be downloaded that blocks.  
+	 * While in a thread looping, it'll wait until it is fed to iterate. 
+	 */
 	private static LinkedBlockingQueue<String> _downloadQueue = new LinkedBlockingQueue<String>();
+	
+	/**
+	 * An activities subscription to this image download.  The action will occur when the image is finished downloading. 
+	 */
 	private static ConcurrentHashMap<String, ConcurrentLinkedQueue<ImageNotifyHandler>> _downloadSubscriptions = new ConcurrentHashMap<String, ConcurrentLinkedQueue<ImageNotifyHandler>>();
+	
+
+	/**
+	 * A synchronized map that contains a WeakHashMap.  To simplify, it means the garbage collector will
+	 * clear these as it deems.  They'll never be tied into another class instantiation.   
+	 * 
+	 *  The images won't de-load because they're inside of a ImageView, but when the ImageView is no longer 
+	 *  on screen memory will quickly be retrieved. 
+	 */
 	private static Map<String, Bitmap> _imageCache = (Map<String, Bitmap>) Collections
 			.synchronizedMap(new WeakHashMap<String, Bitmap>(30, .75F));
 
+	/**
+	 * A list of images that timed out when downloading.
+	 */
 	private static ArrayList<String> _timedOutCache = new ArrayList<String>();
-	private static Context _applicationContext = null;
+	
+	/**
+	 * Threads that will be spinning attempting to grab a URL from the list to download.  
+	 * If one is in the middle of downloading another will grab the next available URL and began the process.
+	 */
 	private static GetThread[] _subscribedThreads = null;
 
+	/**
+	 * Keeps track of which group or activity is loaded.  To relieve the system even further and avoid
+	 * running it thin, as an activity pauses or finishes the Image Cache manually unloads.  
+	 * 
+	 * If the onResume is called, the images will reload.  
+	 */
 	private static String _currentActivity = "";
 
-	public static void initialize(Context ctx) {
+	
+	/**
+	 * Should be called as the application starts.  Initializes the ImageProvider. 
+	 */
+	public static void initialize() {
 
-		if (_applicationContext == null) {
-			_applicationContext = ctx.getApplicationContext();
-			Log.i(TAG, "Image Provider: Initializing");
-		}
-
-		if (_loadingImage == null) {
-			_loadingImage = BitmapFactory.decodeResource(_applicationContext.getResources(), R.drawable.loading);
-		}
-
-		if (_comingSoonImage == null) {
-			_comingSoonImage = BitmapFactory.decodeResource(_applicationContext.getResources(),
-					R.drawable.comingsoonoff);
-		}
-
+		
 		if (_downloadSubscriptions != null) {
 			_downloadSubscriptions.clear();
 		}
@@ -102,7 +139,7 @@ public final class ImageProvider {
 			});
 		}
 
-		/* Fire Up The Threads */
+		
 		TakeThreadStackAction(new ThreadStackAction() {
 			public void onThreadStack(GetThread thread, int id) {
 
@@ -114,33 +151,56 @@ public final class ImageProvider {
 				}
 			}
 		});
+		
 	}
 
+	
+	/**
+	 * An outside method can decide if this will be used, but cached as it may be used a lot.
+	 * Other loading images can also be used.  
+	 * @return default loading image. 
+	 */
 	public static Bitmap getLoadingImage() {
+
+		if (_loadingImage == null) {
+			_loadingImage = BitmapFactory.decodeResource(Globals.getInstance().getContext().getResources(), R.drawable.loading);
+		}
+
 		return _loadingImage;
 	}
 
+
+	/**
+	 * An outside method can decide if this will be used, but cached as it may be used a lot.
+	 * Other placeholder images can also be used.  
+	 * @return placeholder image. 
+	 */
 	public static Bitmap getComingSoonImage() {
+		
+		if (_comingSoonImage == null) {
+			_comingSoonImage = BitmapFactory.decodeResource(Globals.getInstance().getContext().getResources(),
+					R.drawable.comingsoonoff);
+		}
+		
 		return _comingSoonImage;
 	}
 
-	public static Bitmap getBitmapImageOffThread(String url) {
-		try {
-			HttpGet httpRequest = new HttpGet(url);
-			HttpClient httpClient = new DefaultHttpClient();
 
-			HttpResponse response = (HttpResponse) httpClient.execute(httpRequest);
-			HttpEntity entity = response.getEntity();
-			BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
-			InputStream instream = bufHttpEntity.getContent();
-			return BitmapFactory.decodeStream(instream);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return BitmapFactory.decodeResource(_applicationContext.getResources(), R.drawable.comingsoonoff);
-	}
-
+	
+	/**
+	 * Queues a bitmap for download if it isn't already downloaded, the threads will fire up and download. 
+	 * If an image is downloaded it'll return.   This takes a ImageNotify handler that'll execute when the 
+	 * image is finished downloading.  
+	 * 
+	 * It also takes Activity name.  If one activity is still actively downloading images and
+	 * another attempts.  The out dated activity will be cleared out and the 
+	 * new activity will take preference.
+	 * 
+	 * @param remoteImageUrl - URL to download.
+	 * @param handler - Action to happen once URL is downloaded. 
+	 * @param activityName - Group or Activity that is currently downloading. 
+	 * @return Bitmap that's downloaded. 
+	 */
 	public static Bitmap getBitmap(String remoteImageUrl, ImageNotifyHandler handler, String activityName) {
 
 		if (_currentActivity == null || _currentActivity.equalsIgnoreCase("")) {
@@ -186,7 +246,8 @@ public final class ImageProvider {
 	}
 
 	/**
-	 * A thread that performs a GET.
+	 * A thread that performs a GET, in this case on an image
+	 * a lot of these can be running async.
 	 */
 	static class GetThread extends Thread {
 
@@ -283,12 +344,18 @@ public final class ImageProvider {
 		}
 	}
 
+	/*
+	 * cache Bitmap
+	 */
 	private static void cacheBitmap(String key, Bitmap b) {
 		if (key != null && b != null) {
 			_imageCache.put(key, b);
 		}
 	}
 
+	/*
+	 * Take an action on a large amount of threads. 
+	 */
 	public static void TakeThreadStackAction(ThreadStackAction action) {
 		for (int i = 0; i < PRESCRIBED_DOWNLOAD_THREAD_COUNT; i++) {
 			GetThread t = _subscribedThreads[i];
@@ -296,14 +363,18 @@ public final class ImageProvider {
 		}
 	}
 
+	
+	/**
+	 * Thread Action to be taken
+	 */
 	public interface ThreadStackAction {
 		void onThreadStack(GetThread thread, int id);
 	}
 
-	public interface SingleImageUpdate {
-		void onSingleImageUpdate(Bitmap b);
-	}
 
+	/**
+	 * clears image provider system, allowing it to free up memory and start from scratch. 
+	 */
 	public static void clear() {
 
 		if (_timedOutCache != null) {
@@ -320,18 +391,33 @@ public final class ImageProvider {
 		}
 	}
 
+	/**
+	 * This is used by abstract classes to manage a Group or Activity of images. 
+	 * @param currentActivity
+	 */
 	public static void setCurrentActivity(String currentActivity) {
 		_currentActivity = currentActivity;
 	}
+	
+	
 
+	/**
+	 * Number of images in the download queue that haven't started. 
+	 */
 	public static int getUnresolvedCount() {
 		return _downloadQueue.size();
 	}
 
+	/**
+	 * Number of urls that timed out in the Group or Activity Set. 
+	 */
 	public static int getTimeoutCount() {
 		return _timedOutCache.size();
 	}
 
+	/**
+	 * Get a bitmap that is sure to be in the cache. 
+	 */
 	public static Bitmap getBitmapFromCache(String url)
 	{
 		return _imageCache.get(url);

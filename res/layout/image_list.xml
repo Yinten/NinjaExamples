@@ -1,4 +1,5 @@
-/*
+<?xml version="1.0" encoding="utf-8"?>
+<!--  
 Copyright 2011 Ryan Mattison
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,42 +13,18 @@ Copyright 2011 Ryan Mattison
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-*/ 
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-package com.ninja.examples.utility;
+    <ListView
+        android:id="@+id/imageListView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="#cccccc"
+        android:dividerHeight="1dip" />
 
-import android.content.Context;
-
-public class Globals
-{
-	
-	private static Globals globals;
-
-	public Context context;
-	
-
-	private Globals()
-	{
-	}
-
-	public static Globals getInstance()
-	{
-		if (globals == null)
-		{
-			globals = new Globals();
-		}
-
-		return globals;
-	}
-	
-	public Context getContext()
-	{
-		return context;
-	}
-
-	public void setContext(Context context)
-	{
-		this.context = context;
-	}
-
-}
+</LinearLayout>
