@@ -47,6 +47,10 @@ import com.ninja.examples.utility.net.APIRequest;
 public final class ImageProvider {
 
 
+	static 
+	{
+		ImageProvider.initialize(); 
+	}
 
 	private static final String TAG = "ImageProvider";
 	

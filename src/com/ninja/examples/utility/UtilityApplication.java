@@ -25,6 +25,8 @@ public abstract class UtilityApplication extends Application
 	{
 		super.onCreate();
 		setUpGlobals();
+		
+		
 	}
 
 	public void setUpGlobals()
