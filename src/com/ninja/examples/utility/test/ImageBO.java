@@ -57,26 +57,26 @@ public class ImageBO
 	 * Generates test data for this object. 
 	 * @return List<ImageBO>
 	 */
-	
 	public static List<ImageBO> getTestData()
 	{
 		ArrayList<ImageBO> images = new ArrayList<ImageBO>(); 
 		
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/rss.png", "A RSS Icon")); 
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/facebook.png", "A Facebook Icon"));
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/googleplus.png", "A Google Plus Icon"));
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/twitter.png", "A Twitter Icon"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/4.jpg", "Manic Focus")); 
+		images.add(new ImageBO("http://www.twistedcop.com/images/1.jpg", "IS"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/2.jpg", "Cool"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/3.jpg", "http://www.manicfocus.com"));
 		
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/rss.png", "2 A RSS Icon")); 
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/facebook.png", "2 A Facebook Icon"));
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/googleplus.png", "2 A Google Plus Icon"));
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/twitter.png", "2 A Twitter Icon"));
+		images.add(new ImageBO("http://www.localhost.com/notthere.png", "This image will not load."));
+		images.add(new ImageBO("http://www.twistedcop.com/images/5.jpg", "The album is free.")); 
+		images.add(new ImageBO("http://www.twistedcop.com/images/6.jpg", "Click the cover"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/2.jpg", "To Download"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/3.jpg", "Check it out"));
 		
 		
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/rss.png", "2 A RSS Icon")); 
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/facebook.png", "2 A Facebook Icon"));
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/googleplus.png", "2 A Google Plus Icon"));
-		images.add(new ImageBO("http://www.ryangmattison.com/themes/Standard/img/social/twitter.png", "2 A Twitter Icon"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/3.jpg", "Take not: My web server")); 
+		images.add(new ImageBO("http://www.twistedcop.com/images/4.jpg", "Is very"));
+		images.add(new ImageBO("http://www.twistedcop.com/images/2.jpg", "SLOW!!!!"));
+		
 		
 		return images; 
 	}
